@@ -133,12 +133,12 @@ pedido/
 ## 👤 Autor
 
 **Alex Girao**  
-🔗 [Adicione aqui seu LinkedIn ou GitHub, se desejar]
+🔗 [[Linkedin](https://br.linkedin.com/in/alex-girao)]
 
 ---
 
 ## 📄 Licença
 
-Este projeto está sob a licença MIT (ou adicione a sua licença preferida).
+Este projeto está sob a licença MIT.
 
 ---

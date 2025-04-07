@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class RabbitMqConfig {
 
-    public static final String ORDER_CREATED_QUEUE = "pedido-created";
+    public static final String PEDIDO_CRIADO_QUEUE = "pedido-criado";
 
     @Bean
     public Jackson2JsonMessageConverter jackson2JsonMessageConverter() {
@@ -17,7 +17,8 @@ public class RabbitMqConfig {
     }
 
     @Bean
-    public Declarable orderCreatedQueue() {
-        return new Queue(ORDER_CREATED_QUEUE);
+    public Declarable pedidoCriadoQueue() {
+        return new Queue(PEDIDO_CRIADO_QUEUE);
     }
+
 }

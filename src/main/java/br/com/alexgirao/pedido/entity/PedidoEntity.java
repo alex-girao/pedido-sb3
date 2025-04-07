@@ -17,13 +17,13 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Document(collation = "pedidos")
+@Document(collection = "pedidos")
 public class PedidoEntity {
 
     @MongoId
     private Long pedidoId;
 
-    @Indexed(name = "cliente_id_index", collation = "{'locale': 'pt'}")
+    @Indexed(name = "cliente_id_index")
     private Long clienteId;
 
     @Field(targetType = FieldType.DECIMAL128)

@@ -1,6 +1,6 @@
 # 📦 Projeto Pedido
 
-Este é um projeto de demonstração usando **Spring Boot 3.4.4**, com integração ao **MongoDB** e ao **RabbitMQ**. 
+Este é um projeto de demonstração usando **Spring Boot 3**, com integração ao **MongoDB** e ao **RabbitMQ**.
 Ele utiliza o Java 21 e foi estruturado para ser executado de forma simples com suporte a testes e containers via Docker.
 
 ---
@@ -12,7 +12,6 @@ Ele utiliza o Java 21 e foi estruturado para ser executado de forma simples com 
 - Spring Web
 - Spring Data MongoDB
 - Spring AMQP (RabbitMQ)
-- Testes com Spring Boot Starter Test e RabbitMQ Test
 - MongoDB (em container)
 - RabbitMQ (em container)
 
@@ -69,13 +68,37 @@ spring.data.mongodb.password=123
 
 ---
 
+## 📋 Modelo de Dados
+
+### Entidade OrderEntity
+
+```java
+@Document(collection = "pedidos")
+public class PedidoEntity {
+
+    @MongoId
+    private Long pedidoId;
+
+    @Indexed(name = "cliente_id_index")
+    private Long clienteId;
+
+    @Field(targetType = FieldType.DECIMAL128)
+    private BigDecimal total;
+
+    private List<PedidoItem> itens;
+
+}
+```
+
+---
+
 ## ▶️ Como Executar o Projeto
 
 1. **Clone o repositório**
 
 ```bash
-git clone https://github.com/seu-usuario/pedido.git
-cd pedido
+git clone https://github.com/alex-girao/pedido-sb3.git
+cd pedido-sb3
 ```
 
 2. **Suba os serviços com Docker**
@@ -95,6 +118,93 @@ A aplicação estará disponível em: `http://localhost:8080`
 
 ---
 
+## 📡 API Endpoints
+
+### Consultar Pedidos de um Cliente
+
+Recupera todos os pedidos associados a um cliente específico, com suporte à paginação.
+
+#### Requisição
+
+```bash
+curl --request GET \
+--url http://localhost:8080/clientes/{clienteId}/pedidos
+```
+
+Exemplo:
+```bash
+curl --request GET \
+--url http://localhost:8080/clientes/2/pedidos
+```
+
+#### Parâmetros de URL
+
+- `clienteId` (obrigatório): ID do cliente cujos pedidos você deseja consultar
+- `page` (opcional): Número da página (padrão: 0)
+- `size` (opcional): Tamanho da página (padrão: 10)
+
+#### Resposta
+
+**Status Code:** 200 OK
+
+```json
+{
+  "summary": {
+    "totalPedidos": 50
+  },
+  "data": [
+    {
+      "pedidoId": 1003,
+      "clienteId": 2,
+      "total": 50
+    }
+  ],
+  "pagination": {
+    "page": 0,
+    "pageSize": 10,
+    "totalElements": 1,
+    "totalPages": 1
+  }
+}
+```
+
+#### Descrição dos Campos
+
+- `summary`: Resumo dos dados retornados
+    - `totalPedidos`: Total de pedidos associados ao cliente
+- `data`: Lista de pedidos do cliente
+    - `pedidoId`: Identificador único do pedido
+    - `clienteId`: Identificador do cliente
+    - `total`: Valor total do pedido
+- `pagination`: Informações de paginação
+    - `page`: Número da página atual
+    - `pageSize`: Tamanho da página
+    - `totalElements`: Total de elementos encontrados
+    - `totalPages`: Total de páginas disponíveis
+
+---
+
+## 🔍 Dicas de Implementação
+
+### MongoDB e Spring Data
+
+- Use `@Document(collection = "nome_colecao")` para definir coleções
+- Certifique-se de usar a propriedade `collection` (não `collation`) na anotação `@Document`
+- Utilize `@CompoundIndex` para criar índices personalizados
+- Para campos decimais, use `@Field(targetType = FieldType.DECIMAL128)` com `BigDecimal`
+
+### Paginação
+
+A aplicação usa o `Pageable` do Spring Data para paginação:
+
+```java
+public interface PedidoRepository extends MongoRepository<PedidoEntity, Long> {
+    Page<PedidoEntity> findAllByClienteId(Long clienteId, PageRequest pageRequest);
+}
+```
+
+---
+
 ## ✅ Executando os Testes
 
 ```bash
@@ -111,15 +221,40 @@ Acesse o painel de administração do RabbitMQ:
 - Usuário padrão: `guest`
 - Senha padrão: `guest`
 
+Um exemplo de mensagem
+```json
+{
+  "codigoPedido": 7223,
+  "codigoCliente":1,
+  "itens": [
+    {
+      "produto": "tesoura",
+      "quantidade": 5,
+      "preco": 10.00
+    },
+    {
+      "produto": "apontador",
+      "quantidade": 5,
+      "preco": 1.00
+    }
+  ]
+}
+```
 ---
 
 ## 📁 Estrutura do Projeto
 
 ```
-pedido/
+pedido-sb3/
 ├── src/
 │   ├── main/
 │   │   ├── java/
+│   │   │   └── br/com/alexgirao/pedido/
+│   │   │       ├── controller/
+│   │   │       ├── entity/
+│   │   │       ├── repository/
+│   │   │       ├── service/
+│   │   │       └── PedidoApplication.java
 │   │   └── resources/
 │   │       └── application.properties
 │   └── test/
